@@ -18,7 +18,7 @@ public class LeaveService {
     private static final String LEAVE_FILE = "data/leaves.csv";
     private static final int CASUAL_LEAVE_LIMIT = 12;
     private static final int SICK_LEAVE_LIMIT = 6;
-    private static final int MATERNITY_LEAVE_LIMIT = 90;
+    private static final int PERSONAL_LEAVE_LIMIT = 90;
 
     private AuthenticationService authService;
     private EmployeeService employeeService;
@@ -322,8 +322,8 @@ public class LeaveService {
                 return CASUAL_LEAVE_LIMIT;
             case "SICK":
                 return SICK_LEAVE_LIMIT;
-            case "MATERNITY":
-                return MATERNITY_LEAVE_LIMIT;
+            case "PERSONAL":
+                return PERSONAL_LEAVE_LIMIT;
             default:
                 return 0;
         }

@@ -799,7 +799,7 @@ public class EmployeeResourceManagementSystem {
         // Validate Role
         String role = "";
         while (true) {
-            System.out.print("Enter Role (Developer/Designer/Manager/Analyst/QA): ");
+            System.out.print("Enter Role: ");
             role = scanner.nextLine().trim();
             if (InputValidator.isValidString(role) && role.length() <= 50) {
                 break;

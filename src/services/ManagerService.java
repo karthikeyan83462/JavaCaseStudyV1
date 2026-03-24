@@ -128,23 +128,19 @@ public class ManagerService {
      * Gets team projects
      */
     public List<Project> getTeamProjects() {
-        List<Employee> team = getTeamMembers();
+        Employee manager = getManagerEmployee();
+        if (manager == null) {
+            return new ArrayList<>();
+        }
+
         List<Project> teamProjects = new ArrayList<>();
-
         List<String[]> allProjects = CSVManager.readCSV(PROJECTS_FILE);
-        List<String[]> allAssignments = CSVManager.readCSV(ASSIGNMENTS_FILE);
 
-        for (Project proj : getProjectObjects(allProjects)) {
-            for (Employee emp : team) {
-                for (String[] assignment : allAssignments) {
-                    if (assignment.length > 2 && 
-                        assignment[1].equals(emp.getEmployeeID()) && 
-                        assignment[2].equals(proj.getProjectID())) {
-                        if (!teamProjects.contains(proj)) {
-                            teamProjects.add(proj);
-                        }
-                    }
-                }
+        for (String[] row : allProjects) {
+            Project project = new Project(row);
+
+            if (manager.getEmployeeID().equals(project.getProjectManager())) {
+                teamProjects.add(project);
             }
         }
 
@@ -172,7 +168,8 @@ public class ManagerService {
                 }
             }
 
-            report.append(String.format("%-20s | %.1f%%\n", emp.getFirstName() + " " + emp.getLastName(), totalAllocation));
+            report.append(
+                    String.format("%-20s | %.1f%%\n", emp.getFirstName() + " " + emp.getLastName(), totalAllocation));
         }
 
         return report.toString();

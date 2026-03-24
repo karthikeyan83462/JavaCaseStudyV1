@@ -5,10 +5,6 @@ import java.util.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Main Employee Resource Management System
- * Production-ready console application with all modules fully implemented
- */
 public class EmployeeResourceManagementSystem {
 
     private AuthenticationService authService;
@@ -38,9 +34,6 @@ public class EmployeeResourceManagementSystem {
         system.run();
     }
 
-    /**
-     * Main application loop
-     */
     private void run() {
         ConsoleUI.printWelcomeBanner();
 
@@ -73,9 +66,7 @@ public class EmployeeResourceManagementSystem {
         }
     }
 
-    /**
-     * Handles user login
-     */
+
     private void handleLogin() {
         System.out.println("\n" + "=".repeat(50));
         System.out.println("LOGIN");

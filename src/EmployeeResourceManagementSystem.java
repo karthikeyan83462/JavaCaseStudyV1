@@ -422,52 +422,89 @@ public class EmployeeResourceManagementSystem {
         System.out.println("\n--- Update Employee ---");
         System.out.println("(Leave blank to keep current value)");
 
-        // Validate First Name (optional)
-        String firstName = "";
+        // First Name
+        String firstName;
         while (true) {
             System.out.print("First Name [" + emp.getFirstName() + "]: ");
             firstName = scanner.nextLine().trim();
-            if (firstName.isEmpty() || InputValidator.isValidName(firstName)) {
+            if (firstName.isEmpty() || InputValidator.isValidName(firstName))
                 break;
-            }
-            System.out.println("Invalid first name. Use only letters, spaces, hyphens, and apostrophes.");
+            System.out.println("Invalid first name.");
         }
 
-        // Validate Last Name (optional)
-        String lastName = "";
+        // Last Name
+        String lastName;
         while (true) {
             System.out.print("Last Name [" + emp.getLastName() + "]: ");
             lastName = scanner.nextLine().trim();
-            if (lastName.isEmpty() || InputValidator.isValidName(lastName)) {
+            if (lastName.isEmpty() || InputValidator.isValidName(lastName))
                 break;
-            }
-            System.out.println("Invalid last name. Use only letters, spaces, hyphens, and apostrophes.");
+            System.out.println("Invalid last name.");
         }
 
-        // Validate Phone (optional)
-        String phone = "";
+        // Phone
+        String phone;
         while (true) {
             System.out.print("Phone [" + emp.getPhone() + "]: ");
             phone = scanner.nextLine().trim();
-            if (phone.isEmpty() || InputValidator.isValidPhone(phone, false)) {
+            if (phone.isEmpty() || InputValidator.isValidPhone(phone, false))
                 break;
-            }
-            System.out.println("Invalid phone number. Please enter exactly 10 digits.");
+            System.out.println("Invalid phone number.");
         }
 
-        // Validate Salary (optional)
-        String salary = "";
+        // Salary
+        String salary;
         while (true) {
             System.out.print("Salary [" + emp.getSalary() + "]: ");
             salary = scanner.nextLine().trim();
-            if (salary.isEmpty() || InputValidator.isValidSalary(salary, false)) {
+            if (salary.isEmpty() || InputValidator.isValidSalary(salary, false))
                 break;
-            }
-            System.out.println("Invalid salary. Please enter a positive number.");
+            System.out.println("Invalid salary.");
         }
 
-        if (employeeService.updateEmployee(employeeID, firstName, lastName, phone,
-                emp.getDepartment(), emp.getDesignation(), salary)) {
+        String reportingManagerId;
+        while (true) {
+            System.out.print("Reporting Manager [" + emp.getReportingManager() + "]: ");
+            reportingManagerId = scanner.nextLine().trim();
+
+            // Keep existing
+            if (reportingManagerId.isEmpty()) {
+                reportingManagerId = emp.getReportingManager();
+                break;
+            }
+
+            // Cannot report to self
+            if (reportingManagerId.equals(employeeID)) {
+                System.out.println("Employee cannot be their own manager.");
+                continue;
+            }
+
+            Employee manager = employeeService.getEmployeeByID(reportingManagerId);
+            if (manager == null) {
+                System.out.println("Reporting Manager ID does not exist.");
+                continue;
+            }
+
+            User managerUser = authService.getUserByEmail(manager.getEmail());
+            if (managerUser == null || !"MANAGER".equals(managerUser.getRole())) {
+                System.out.println("Selected employee is NOT a MANAGER.");
+                continue;
+            }
+
+            break;
+        }
+
+        boolean updated = employeeService.updateEmployee(
+                employeeID,
+                firstName,
+                lastName,
+                phone,
+                emp.getDepartment(),
+                emp.getDesignation(),
+                salary,
+                reportingManagerId);
+
+        if (updated) {
             System.out.println("Employee updated successfully.");
         } else {
             System.out.println("Failed to update employee.");

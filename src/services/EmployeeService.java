@@ -204,7 +204,7 @@ public class EmployeeService {
      * Updates employee information
      */
     public boolean updateEmployee(String employeeID, String firstName, String lastName,
-                                 String phone, String department, String designation, String salary) {
+                                 String phone, String department, String designation, String salary, String managerId) {
         
         if (!authService.hasPermission("VIEW_ALL_EMPLOYEES")) {
             return false;
@@ -236,6 +236,7 @@ public class EmployeeService {
         if (department != null && !department.isEmpty()) employee.setDepartment(department);
         if (designation != null && !designation.isEmpty()) employee.setDesignation(designation);
         if (salary != null && !salary.isEmpty()) employee.setSalary(salary);
+        if (managerId != null ) employee.setReportingManager(managerId);
 
         List<String[]> employees = CSVManager.readCSV(EMPLOYEES_FILE);
         if (CSVManager.updateRow(employees, 0, employeeID, employee.toCSVRow())) {

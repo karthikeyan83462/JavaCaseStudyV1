@@ -949,7 +949,7 @@ public class EmployeeResourceManagementSystem {
         // Validate Date
         String dateStr = "";
         while (true) {
-            System.out.print("Date (dd-MM-yyyy) [today]: ");
+            System.out.print("Date (dd-MM-yyyy) [Press enter for today]: ");
             dateStr = scanner.nextLine().trim();
             if (dateStr.isEmpty()) {
                 dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));

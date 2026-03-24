@@ -676,7 +676,7 @@ public class EmployeeResourceManagementSystem {
         // Validate End Date
         String endDate = "";
         while (true) {
-            System.out.print("End Date (dd-MM-yyyy): ");
+            System.out.print("End Date (dd-MM-yyyy) Press up arrow to select previous date: ");
             endDate = scanner.nextLine().trim();
             if (InputValidator.isValidDate(endDate)) {
                 // Check if end date is after start date
@@ -882,7 +882,7 @@ public class EmployeeResourceManagementSystem {
         // Validate End Date
         String endDate = "";
         while (true) {
-            System.out.print("Enter End Date (dd-MM-yyyy): ");
+            System.out.print("Enter End Date (dd-MM-yyyy) Press up arrow to select same date: ");
             endDate = scanner.nextLine().trim();
             if (InputValidator.isValidDate(endDate)) {
                 try {
@@ -1902,7 +1902,7 @@ public class EmployeeResourceManagementSystem {
         // Validate End Date
         String endDate = "";
         while (true) {
-            System.out.print("End Date (dd-MM-yyyy): ");
+            System.out.print("End Date (dd-MM-yyyy) Press up arrow to select previous date: ");
             endDate = scanner.nextLine().trim();
             if (InputValidator.isValidDate(endDate)) {
                 try {
@@ -2107,7 +2107,7 @@ public class EmployeeResourceManagementSystem {
 
         for (int i = 0; i < chain.size(); i++) {
             if (i > 0) {
-                System.out.print("    ↓ Reports to\n");
+                System.out.print("    | Reports to\n");
             }
             System.out.println(chain.get(i));
         }

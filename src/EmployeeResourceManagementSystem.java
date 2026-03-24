@@ -272,15 +272,39 @@ public class EmployeeResourceManagementSystem {
             System.out.println("Invalid phone number. Please enter exactly 10 digits.");
         }
 
-        // Validate Date of Birth
+        // Validate Date of Birth (Must be 18+)
         String dob = "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
         while (true) {
             System.out.print("Date of Birth (dd-MM-yyyy): ");
             dob = scanner.nextLine().trim();
-            if (InputValidator.isValidDate(dob)) {
-                break;
+
+            if (!InputValidator.isValidDate(dob)) {
+                System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 15-06-1990).");
+                continue;
             }
-            System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 15-06-1990).");
+
+            try {
+                LocalDate birthDate = LocalDate.parse(dob, formatter);
+                LocalDate today = LocalDate.now();
+                LocalDate minimumEligibleDate = today.minusYears(18);
+
+                if (birthDate.isAfter(today)) {
+                    System.out.println("Date of birth cannot be in the future.");
+                    continue;
+                }
+
+                if (birthDate.isAfter(minimumEligibleDate)) {
+                    System.out.println("You are not eligible. Applicant must be at least 18 years old.");
+                    continue;
+                }
+
+                break;
+
+            } catch (Exception e) {
+                System.out.println("Error parsing date. Please try again.");
+            }
         }
 
         System.out.println("\nSelect Department:");
@@ -1514,7 +1538,7 @@ public class EmployeeResourceManagementSystem {
         // Validate Date
         String dateStr = "";
         while (true) {
-            System.out.print("Enter Date (dd-MM-yyyy) [today]: ");
+            System.out.print("Enter Date (dd-MM-yyyy) [Press enter for today]: ");
             dateStr = scanner.nextLine().trim();
             if (dateStr.isEmpty()) {
                 dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
@@ -1770,7 +1794,7 @@ public class EmployeeResourceManagementSystem {
         // Validate Date (default today)
         String dateStr = "";
         while (true) {
-            System.out.print("Date (dd-MM-yyyy) [today]: ");
+            System.out.print("Date (dd-MM-yyyy) [Press enter for today]: ");
             dateStr = scanner.nextLine().trim();
             if (dateStr.isEmpty()) {
                 dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));

@@ -1,15 +1,11 @@
 package services;
 
 import models.Employee;
-import models.Attendance;
-import models.LeaveRequest;
-import models.Project;
-import models.ResourceAssignment;
 import utils.CSVManager;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import java.util.ArrayList;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -21,255 +17,180 @@ public class ReportingService {
 
     private AuthenticationService authService;
     private EmployeeService employeeService;
-    private AttendanceService attendanceService;
-    private LeaveService leaveService;
-    private ProjectService projectService;
 
     public ReportingService(AuthenticationService authService, EmployeeService employeeService) {
         this.authService = authService;
         this.employeeService = employeeService;
     }
-    
-    public void setAttendanceService(AttendanceService attendanceService) {
-        this.attendanceService = attendanceService;
-    }
-    
-    public void setLeaveService(LeaveService leaveService) {
-        this.leaveService = leaveService;
-    }
-    
-    public void setProjectService(ProjectService projectService) {
-        this.projectService = projectService;
-    }
 
-    /**
-     * Gets employee report
-     */
+    /* ===================== EMPLOYEE REPORT ===================== */
+
     public Map<String, Object> getEmployeeReport() {
-        return getEmployeeSummaryReport();
-    }
-
-    /**
-     * Gets employee summary report
-     */
-    public Map<String, Object> getEmployeeSummaryReport() {
         if (!authService.hasPermission("VIEW_REPORTS")) {
             return null;
         }
 
         Map<String, Object> report = new HashMap<>();
-        List<Employee> allEmployees = employeeService.getAllEmployees();
-        
-        if (allEmployees == null) {
-            return null;
-        }
-        
-        int totalEmployees = allEmployees.size();
-        int activeEmployees = 0;
+        List<Employee> employees = employeeService.getAllEmployees();
+        if (employees == null) return null;
+
+        int total = employees.size();
+        int active = 0;
         double totalSalary = 0;
-        Map<String, Integer> deptCount = new HashMap<>();
-        Map<String, Integer> desigCount = new HashMap<>();
-        
-        for (Employee emp : allEmployees) {
-            if (emp.getStatus().equals("ACTIVE")) {
-                activeEmployees++;
-            }
+
+        Map<String, Integer> deptMap = new HashMap<>();
+        Map<String, Integer> desigMap = new HashMap<>();
+
+        for (Employee e : employees) {
+            if ("ACTIVE".equals(e.getStatus())) active++;
+
             try {
-                totalSalary += Double.parseDouble(emp.getSalary());
-            } catch (NumberFormatException e) {
-                // Skip invalid salary
-            }
-            deptCount.put(emp.getDepartment(), deptCount.getOrDefault(emp.getDepartment(), 0) + 1);
-            desigCount.put(emp.getDesignation(), desigCount.getOrDefault(emp.getDesignation(), 0) + 1);
+                totalSalary += Double.parseDouble(e.getSalary());
+            } catch (Exception ignored) {}
+
+            deptMap.put(e.getDepartment(), deptMap.getOrDefault(e.getDepartment(), 0) + 1);
+            desigMap.put(e.getDesignation(), desigMap.getOrDefault(e.getDesignation(), 0) + 1);
         }
-        
-        double avgSalary = totalEmployees > 0 ? totalSalary / totalEmployees : 0;
-        
-        report.put("totalEmployees", totalEmployees);
-        report.put("activeEmployees", activeEmployees);
-        report.put("inactiveEmployees", totalEmployees - activeEmployees);
+
+        report.put("totalEmployees", total);
+        report.put("activeEmployees", active);
+        report.put("inactiveEmployees", total - active);
         report.put("totalSalary", String.format("%.2f", totalSalary));
-        report.put("averageSalary", String.format("%.2f", avgSalary));
-        report.put("totalDepartments", deptCount.size());
-        report.put("departmentBreakdown", deptCount);
-        report.put("designationBreakdown", desigCount);
+        report.put("averageSalary", String.format("%.2f", total > 0 ? totalSalary / total : 0));
+        report.put("totalDepartments", deptMap.size());
+        report.put("departmentBreakdown", deptMap);
+        report.put("designationBreakdown", desigMap);
 
         return report;
     }
 
-    /**
-     * Gets project summary report with detailed metrics
-     */
+    /* ===================== PROJECT REPORT ===================== */
+
     public Map<String, Object> getProjectReport() {
         if (!authService.hasPermission("VIEW_REPORTS")) {
             return null;
         }
-        
+
         Map<String, Object> report = new HashMap<>();
         List<String[]> projects = CSVManager.readCSV("data/projects.csv");
-        
-        if (projects == null || projects.isEmpty()) {
-            report.put("totalProjects", 0);
-            report.put("activeProjects", 0);
-            report.put("completedProjects", 0);
-            return report;
-        }
-        
-        int totalProjects = projects.size();
-        int activeProjects = 0;
-        int completedProjects = 0;
-        int onHoldProjects = 0;
+
+        int total = 0, active = 0, completed = 0, onHold = 0;
         double totalBudget = 0;
-        
-        Map<String, Integer> statusCount = new HashMap<>();
-        
+
+        Map<String, Integer> statusMap = new HashMap<>();
+
         for (String[] row : projects) {
-            if (row.length >= 6) {
-                String status = row[5];
-                statusCount.put(status, statusCount.getOrDefault(status, 0) + 1);
-                
-                if (status.equals("ACTIVE")) activeProjects++;
-                else if (status.equals("COMPLETED")) completedProjects++;
-                else if (status.equals("ON-HOLD")) onHoldProjects++;
-                
+            if (row.length >= 8) {
+                total++;
+                String status = row[6];
+                statusMap.put(status, statusMap.getOrDefault(status, 0) + 1);
+
+                if ("ACTIVE".equals(status)) active++;
+                else if ("COMPLETED".equals(status)) completed++;
+                else if ("ON-HOLD".equals(status)) onHold++;
+
                 try {
                     totalBudget += Double.parseDouble(row[7]);
-                } catch (NumberFormatException e) {
-                    // Skip invalid budget
-                }
+                } catch (Exception ignored) {}
             }
         }
-        
-        report.put("totalProjects", totalProjects);
-        report.put("activeProjects", activeProjects);
-        report.put("completedProjects", completedProjects);
-        report.put("onHoldProjects", onHoldProjects);
+
+        report.put("totalProjects", total);
+        report.put("activeProjects", active);
+        report.put("completedProjects", completed);
+        report.put("onHoldProjects", onHold);
         report.put("totalBudget", String.format("%.2f", totalBudget));
-        report.put("statusBreakdown", statusCount);
+        report.put("statusBreakdown", statusMap);
 
         return report;
     }
 
-    /**
-     * Gets attendance report with monthly summary
-     */
+    /* ===================== ATTENDANCE REPORT ===================== */
+
     public Map<String, Object> getAttendanceReport() {
         if (!authService.hasPermission("VIEW_REPORTS")) {
             return null;
         }
-        
+
         Map<String, Object> report = new HashMap<>();
-        List<String[]> attendances = CSVManager.readCSV("data/attendance.csv");
-        
-        if (attendances == null || attendances.isEmpty()) {
-            report.put("totalRecords", 0);
-            report.put("presentCount", 0);
-            report.put("absentCount", 0);
-            return report;
-        }
-        
-        int totalRecords = attendances.size();
-        int presentCount = 0;
-        int absentCount = 0;
-        int leaveCount = 0;
-        Map<String, Integer> monthlyStats = new HashMap<>();
-        Map<String, Integer> statusStats = new HashMap<>();
-        
+        List<String[]> records = CSVManager.readCSV("data/attendance.csv");
+
+        int present = 0, absent = 0, leave = 0;
+        int total = records.size();
+        int currentMonth = 0;
+
+        Map<String, Integer> statusMap = new HashMap<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        YearMonth currentMonth = YearMonth.now();
-        int currentMonthRecords = 0;
-        
-        for (String[] row : attendances) {
-            if (row.length >= 3) {
+        YearMonth now = YearMonth.now();
+
+        for (String[] row : records) {
+            if (row.length >= 4) {
                 String status = row[3];
-                String date = row[2];
-                
-                statusStats.put(status, statusStats.getOrDefault(status, 0) + 1);
-                
-                if (status.equals("PRESENT")) presentCount++;
-                else if (status.equals("ABSENT")) absentCount++;
-                else if (status.equals("LEAVE")) leaveCount++;
-                
+                statusMap.put(status, statusMap.getOrDefault(status, 0) + 1);
+
+                if ("PRESENT".equals(status)) present++;
+                else if ("ABSENT".equals(status)) absent++;
+                else if ("LEAVE".equals(status)) leave++;
+
                 try {
-                    LocalDate attDate = LocalDate.parse(date, formatter);
-                    YearMonth attMonth = YearMonth.from(attDate);
-                    if (attMonth.equals(currentMonth)) {
-                        currentMonthRecords++;
-                    }
-                } catch (Exception e) {
-                    // Skip invalid dates
-                }
+                    LocalDate d = LocalDate.parse(row[2], formatter);
+                    if (YearMonth.from(d).equals(now)) currentMonth++;
+                } catch (Exception ignored) {}
             }
         }
-        
-        double presentPercentage = totalRecords > 0 ? (presentCount * 100.0) / totalRecords : 0;
-        double absentPercentage = totalRecords > 0 ? (absentCount * 100.0) / totalRecords : 0;
-        
-        report.put("totalRecords", totalRecords);
-        report.put("presentCount", presentCount);
-        report.put("presentPercentage", String.format("%.2f%%", presentPercentage));
-        report.put("absentCount", absentCount);
-        report.put("absentPercentage", String.format("%.2f%%", absentPercentage));
-        report.put("leaveCount", leaveCount);
-        report.put("currentMonthRecords", currentMonthRecords);
-        report.put("statusBreakdown", statusStats);
+
+        report.put("totalRecords", total);
+        report.put("presentCount", present);
+        report.put("absentCount", absent);
+        report.put("leaveCount", leave);
+        report.put("presentPercentage", String.format("%.2f%%", total > 0 ? present * 100.0 / total : 0));
+        report.put("absentPercentage", String.format("%.2f%%", total > 0 ? absent * 100.0 / total : 0));
+        report.put("currentMonthRecords", currentMonth);
+        report.put("statusBreakdown", statusMap);
 
         return report;
     }
 
-    /**
-     * Gets leave report with type breakdown and balance
-     */
+    /* ===================== LEAVE REPORT ===================== */
+
     public Map<String, Object> getLeaveReport() {
         if (!authService.hasPermission("VIEW_REPORTS")) {
             return null;
         }
-        
+
         Map<String, Object> report = new HashMap<>();
         List<String[]> leaves = CSVManager.readCSV("data/leaves.csv");
-        
-        if (leaves == null || leaves.isEmpty()) {
-            report.put("totalLeaves", 0);
-            report.put("approvedLeaves", 0);
-            report.put("pendingLeaves", 0);
-            return report;
-        }
-        
-        int totalLeaves = leaves.size();
-        int approvedLeaves = 0;
-        int pendingLeaves = 0;
-        int rejectedLeaves = 0;
-        Map<String, Integer> typeCount = new HashMap<>();
-        Map<String, Integer> statusCount = new HashMap<>();
-        int totalDays = 0;
-        
+
+        int approved = 0, pending = 0, rejected = 0, totalDays = 0;
+
+        Map<String, Integer> typeMap = new HashMap<>();
+        Map<String, Integer> statusMap = new HashMap<>();
+
         for (String[] row : leaves) {
-            if (row.length >= 5) {
-                String leaveType = row[2];
+            if (row.length >= 8) {
+                String type = row[2];
                 String status = row[7];
-                
-                typeCount.put(leaveType, typeCount.getOrDefault(leaveType, 0) + 1);
-                statusCount.put(status, statusCount.getOrDefault(status, 0) + 1);
-                
-                if (status.equals("APPROVED")) approvedLeaves++;
-                else if (status.equals("PENDING")) pendingLeaves++;
-                else if (status.equals("REJECTED")) rejectedLeaves++;
-                
+
+                typeMap.put(type, typeMap.getOrDefault(type, 0) + 1);
+                statusMap.put(status, statusMap.getOrDefault(status, 0) + 1);
+
+                if ("APPROVED".equals(status)) approved++;
+                else if ("PENDING".equals(status)) pending++;
+                else if ("REJECTED".equals(status)) rejected++;
+
                 try {
                     totalDays += Integer.parseInt(row[5]);
-                } catch (NumberFormatException e) {
-                    // Skip invalid days
-                }
+                } catch (Exception ignored) {}
             }
         }
-        
-        report.put("totalLeaves", totalLeaves);
-        report.put("approvedLeaves", approvedLeaves);
-        report.put("pendingLeaves", pendingLeaves);
-        report.put("rejectedLeaves", rejectedLeaves);
+
+        report.put("totalLeaves", leaves.size());
+        report.put("approvedLeaves", approved);
+        report.put("pendingLeaves", pending);
+        report.put("rejectedLeaves", rejected);
         report.put("totalLeaveDays", totalDays);
-        report.put("leaveTypeBreakdown", typeCount);
-        report.put("leaveStatusBreakdown", statusCount);
+        report.put("leaveTypeBreakdown", typeMap);
+        report.put("leaveStatusBreakdown", statusMap);
 
         return report;
     }

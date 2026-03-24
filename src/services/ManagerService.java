@@ -186,13 +186,13 @@ public class ManagerService {
     /**
      * Helper method to convert raw data to Project objects
      */
-    private List<Project> getProjectObjects(List<String[]> rows) {
-        List<Project> projects = new ArrayList<>();
-        for (String[] row : rows) {
-            projects.add(new Project(row));
-        }
-        return projects;
-    }
+    // private List<Project> getProjectObjects(List<String[]> rows) {
+    //     List<Project> projects = new ArrayList<>();
+    //     for (String[] row : rows) {
+    //         projects.add(new Project(row));
+    //     }
+    //     return projects;
+    // }
 
     /**
      * Checks if user is manager

@@ -2,9 +2,6 @@ package utils;
 
 import java.util.regex.Pattern;
 
-/**
- * Utility class for comprehensive input validation
- */
 public class InputValidator {
 
     private static final Pattern EMAIL_PATTERN = 

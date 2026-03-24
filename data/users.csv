@@ -1,3 +1,4 @@
 USR001,admin@tcs.com,Admin@1234,ADMIN,false,23-03-2026
 USR002,a@tcs.com,Pass@123,MANAGER,false,24-03-2026
 USR003,kavin@tcs.com,Pass@1234,EMPLOYEE,false,24-03-2026
+USR004,karthikeyan@tcs.com,Pass@123,EMPLOYEE,true,24-03-2026

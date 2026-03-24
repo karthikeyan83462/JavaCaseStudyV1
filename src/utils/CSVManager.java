@@ -3,9 +3,6 @@ package utils;
 import java.io.*;
 import java.util.*;
 
-/**
- * Utility class for CSV file operations with safety checks
- */
 public class CSVManager {
 
     /**

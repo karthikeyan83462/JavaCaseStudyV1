@@ -29,7 +29,7 @@ public class EmployeeResourceManagementSystem {
 
     public static void main(String[] args) {
         AuthenticationService.initializeSystem();
-        
+
         EmployeeResourceManagementSystem system = new EmployeeResourceManagementSystem();
         system.run();
     }
@@ -42,7 +42,7 @@ public class EmployeeResourceManagementSystem {
                 handleLogin();
             } else {
                 User currentUser = authService.getCurrentUser();
-                
+
                 if (currentUser.isPasswordChangeRequired()) {
                     handleFirstTimePasswordChange();
                 } else {
@@ -66,19 +66,18 @@ public class EmployeeResourceManagementSystem {
         }
     }
 
-
     private void handleLogin() {
         System.out.println("\n" + "=".repeat(50));
         System.out.println("LOGIN");
         System.out.println("=".repeat(50));
         System.out.print("Email: ");
         String email = scanner.nextLine().trim();
-        
+
         System.out.print("Password: ");
         String password = scanner.nextLine();
 
         User user = authService.login(email, password);
-        
+
         if (user != null) {
             System.out.println("\nLogin successful! Welcome, " + email);
         } else {
@@ -93,34 +92,34 @@ public class EmployeeResourceManagementSystem {
         System.out.println("\n" + "=".repeat(80));
         System.out.println("FIRST TIME LOGIN - STRONG PASSWORD REQUIRED");
         System.out.println("=".repeat(80));
-        
+
         User currentUser = authService.getCurrentUser();
         String currentPassword = currentUser.getPassword();
-        
+
         while (true) {
             System.out.println("\nPassword Requirements:");
             System.out.println(InputValidator.getPasswordValidationMessage());
             System.out.print("\nEnter new password: ");
             String newPassword = scanner.nextLine();
-            
+
             if (!InputValidator.isValidPassword(newPassword)) {
                 System.out.println("Password does not meet requirements. Please try again.");
                 continue;
             }
-            
+
             if (newPassword.equals(currentPassword)) {
                 System.out.println("New password must be different from current password.");
                 continue;
             }
-            
+
             System.out.print("Confirm new password: ");
             String confirmPassword = scanner.nextLine();
-            
+
             if (!newPassword.equals(confirmPassword)) {
                 System.out.println("Passwords do not match. Please try again.");
                 continue;
             }
-            
+
             if (authService.changePassword(currentPassword, newPassword)) {
                 currentUser.setPasswordChangeRequired(false);
                 System.out.println("Password changed successfully!");
@@ -148,9 +147,9 @@ public class EmployeeResourceManagementSystem {
             System.out.println("7. Change Password");
             System.out.println("8. Logout");
             System.out.print("Enter choice: ");
-            
+
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice) {
                 case "1":
                     adminEmployeeManagement();
@@ -196,9 +195,9 @@ public class EmployeeResourceManagementSystem {
             System.out.println("5. View Employee Details");
             System.out.println("6. Back");
             System.out.print("Enter choice: ");
-            
+
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice) {
                 case "1":
                     createEmployee();
@@ -228,7 +227,7 @@ public class EmployeeResourceManagementSystem {
      */
     private void createEmployee() {
         System.out.println("\n--- Create New Employee ---");
-        
+
         // Validate First Name
         String firstName = "";
         while (true) {
@@ -239,7 +238,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid first name. Use only letters, spaces, hyphens, and apostrophes.");
         }
-        
+
         // Validate Last Name
         String lastName = "";
         while (true) {
@@ -250,7 +249,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid last name. Use only letters, spaces, hyphens, and apostrophes.");
         }
-        
+
         // Validate Email
         String email = "";
         while (true) {
@@ -261,7 +260,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid email format. Please enter a valid email address.");
         }
-        
+
         // Validate Phone
         String phone = "";
         while (true) {
@@ -272,7 +271,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid phone number. Please enter exactly 10 digits.");
         }
-        
+
         // Validate Date of Birth
         String dob = "";
         while (true) {
@@ -283,47 +282,47 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 15-06-1990).");
         }
-        
+
         System.out.println("\nSelect Department:");
         System.out.print(Department.getDepartmentOptions());
-        
+
         Department dept = null;
         while (dept == null) {
             System.out.print("Enter choice (1-6): ");
             String deptChoice = scanner.nextLine().trim();
-            
+
             if (!InputValidator.isValidInteger(deptChoice, 1, 6)) {
                 System.out.println("Invalid choice. Please enter a number between 1 and 6.");
                 continue;
             }
-            
+
             int deptIndex = Integer.parseInt(deptChoice);
             dept = Department.getDepartmentByIndex(deptIndex);
             if (dept == null) {
                 System.out.println("Invalid department selection. Please try again.");
             }
         }
-        
+
         System.out.println("\nSelect Designation for " + dept.getFullName() + ":");
         System.out.print(Designation.getDesignationOptions(dept));
-        
+
         Designation desig = null;
         while (desig == null) {
             System.out.print("Enter choice: ");
             String desigChoice = scanner.nextLine().trim();
-            
+
             if (!InputValidator.isValidInteger(desigChoice)) {
                 System.out.println("Invalid input. Please enter a valid number.");
                 continue;
             }
-            
+
             int desigIndex = Integer.parseInt(desigChoice);
             desig = Designation.getDesignationByIndex(dept, desigIndex);
             if (desig == null) {
                 System.out.println("Invalid designation selection. Please try again.");
             }
         }
-        
+
         // Validate Salary
         String salary = "";
         while (true) {
@@ -334,7 +333,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid salary. Please enter a positive number.");
         }
-        
+
         // Optional Reporting Manager
         System.out.print("Reporting Manager ID (optional, press Enter to skip): ");
         String reportingManager = scanner.nextLine().trim();
@@ -347,7 +346,7 @@ public class EmployeeResourceManagementSystem {
                 reportingManager = null;
             }
         }
-        
+
         // Set initial password with confirmation
         String initialPassword = "";
         while (true) {
@@ -355,24 +354,25 @@ public class EmployeeResourceManagementSystem {
             System.out.println(InputValidator.getPasswordValidationMessage());
             System.out.print("Enter password: ");
             initialPassword = scanner.nextLine();
-            
+
             if (!InputValidator.isValidPassword(initialPassword)) {
                 System.out.println("Password does not meet requirements. Please try again.");
                 continue;
             }
-            
+
             System.out.print("Confirm password: ");
             String confirmPassword = scanner.nextLine();
-            
+
             if (!initialPassword.equals(confirmPassword)) {
                 System.out.println("Passwords do not match. Please try again.");
                 continue;
             }
-            
+
             break;
         }
-        
-        if (employeeService.createEmployeeWithPassword(firstName, lastName, email, phone, dept, desig, dob, salary, reportingManager, initialPassword)) {
+
+        if (employeeService.createEmployeeWithPassword(firstName, lastName, email, phone, dept, desig, dob, salary,
+                reportingManager, initialPassword)) {
             System.out.println("Employee created successfully!");
         } else {
             System.out.println("Failed to create employee. Email may already exist or an error occurred.");
@@ -384,25 +384,25 @@ public class EmployeeResourceManagementSystem {
      */
     private void viewAllEmployees() {
         List<Employee> employees = employeeService.getAllEmployees();
-        
+
         if (employees == null || employees.isEmpty()) {
             System.out.println("No employees found.");
             return;
         }
-        
+
         System.out.println("\n--- All Employees ---");
-        System.out.printf("%-10s | %-15s | %-15s | %-25s | %-15s | %-15s\n", 
-                         "ID", "First Name", "Last Name", "Email", "Department", "Status");
+        System.out.printf("%-10s | %-15s | %-15s | %-25s | %-15s | %-15s\n",
+                "ID", "First Name", "Last Name", "Email", "Department", "Status");
         System.out.println("-".repeat(120));
-        
+
         for (Employee emp : employees) {
             System.out.printf("%-10s | %-15s | %-15s | %-25s | %-15s | %-15s\n",
-                             emp.getEmployeeID(),
-                             emp.getFirstName(),
-                             emp.getLastName(),
-                             emp.getEmail(),
-                             emp.getDepartment(),
-                             emp.getStatus());
+                    emp.getEmployeeID(),
+                    emp.getFirstName(),
+                    emp.getLastName(),
+                    emp.getEmail(),
+                    emp.getDepartment(),
+                    emp.getStatus());
         }
     }
 
@@ -412,16 +412,16 @@ public class EmployeeResourceManagementSystem {
     private void updateEmployee() {
         System.out.print("Enter Employee ID: ");
         String employeeID = scanner.nextLine().trim();
-        
+
         Employee emp = employeeService.getEmployeeByID(employeeID);
         if (emp == null) {
             System.out.println("Employee not found.");
             return;
         }
-        
+
         System.out.println("\n--- Update Employee ---");
         System.out.println("(Leave blank to keep current value)");
-        
+
         // Validate First Name (optional)
         String firstName = "";
         while (true) {
@@ -432,7 +432,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid first name. Use only letters, spaces, hyphens, and apostrophes.");
         }
-        
+
         // Validate Last Name (optional)
         String lastName = "";
         while (true) {
@@ -443,7 +443,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid last name. Use only letters, spaces, hyphens, and apostrophes.");
         }
-        
+
         // Validate Phone (optional)
         String phone = "";
         while (true) {
@@ -454,7 +454,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid phone number. Please enter exactly 10 digits.");
         }
-        
+
         // Validate Salary (optional)
         String salary = "";
         while (true) {
@@ -465,9 +465,9 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid salary. Please enter a positive number.");
         }
-        
-        if (employeeService.updateEmployee(employeeID, firstName, lastName, phone, 
-                                          emp.getDepartment(), emp.getDesignation(), salary)) {
+
+        if (employeeService.updateEmployee(employeeID, firstName, lastName, phone,
+                emp.getDepartment(), emp.getDesignation(), salary)) {
             System.out.println("Employee updated successfully.");
         } else {
             System.out.println("Failed to update employee.");
@@ -480,26 +480,26 @@ public class EmployeeResourceManagementSystem {
     private void deleteEmployee() {
         System.out.print("Enter Employee ID: ");
         String employeeID = scanner.nextLine().trim();
-        
+
         if (!InputValidator.isValidString(employeeID)) {
             System.out.println("Invalid employee ID.");
             return;
         }
-        
+
         Employee emp = employeeService.getEmployeeByID(employeeID);
         if (emp == null) {
             System.out.println("Employee not found.");
             return;
         }
-        
+
         System.out.println("\nEmployee Details:");
         System.out.println("Name: " + emp.getFirstName() + " " + emp.getLastName());
         System.out.println("Email: " + emp.getEmail());
         System.out.println("Department: " + emp.getDepartment());
-        
+
         System.out.print("\nAre you sure you want to delete this employee? (yes/no): ");
         String confirm = scanner.nextLine().trim().toLowerCase();
-        
+
         if (confirm.equals("yes") || confirm.equals("y")) {
             if (employeeService.deleteEmployee(employeeID)) {
                 System.out.println("Employee deleted successfully.");
@@ -517,13 +517,13 @@ public class EmployeeResourceManagementSystem {
     private void viewEmployeeDetails() {
         System.out.print("Enter Employee ID: ");
         String employeeID = scanner.nextLine().trim();
-        
+
         Employee emp = employeeService.getEmployeeByID(employeeID);
         if (emp == null) {
             System.out.println("Employee not found.");
             return;
         }
-        
+
         System.out.println("\n--- Employee Details ---");
         System.out.println("ID: " + emp.getEmployeeID());
         System.out.println("Name: " + emp.getFirstName() + " " + emp.getLastName());
@@ -549,9 +549,9 @@ public class EmployeeResourceManagementSystem {
             System.out.println("4. Assign Resource to Project");
             System.out.println("5. Back");
             System.out.print("Enter choice: ");
-            
+
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice) {
                 case "1":
                     createProject();
@@ -578,7 +578,7 @@ public class EmployeeResourceManagementSystem {
      */
     private void createProject() {
         System.out.println("\n--- Create New Project ---");
-        
+
         // Validate Project Name
         String projectName = "";
         while (true) {
@@ -589,7 +589,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid project name. Please enter a non-empty name (max 100 characters).");
         }
-        
+
         // Validate Description
         String description = "";
         while (true) {
@@ -600,7 +600,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid description. Please enter a non-empty description.");
         }
-        
+
         // Validate Start Date
         String startDate = "";
         while (true) {
@@ -611,7 +611,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 15-06-2024).");
         }
-        
+
         // Validate End Date
         String endDate = "";
         while (true) {
@@ -635,25 +635,34 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 31-12-2024).");
             }
         }
-        
         // Validate Project Manager
         String projectManager = "";
         while (true) {
             System.out.print("Project Manager (Employee ID): ");
             projectManager = scanner.nextLine().trim();
-            if (InputValidator.isValidString(projectManager)) {
-                Employee manager = employeeService.getEmployeeByID(projectManager);
-                if (manager != null) {
-                    System.out.println("Manager found: " + manager.getFirstName() + " " + manager.getLastName());
-                    break;
-                } else {
-                    System.out.println("Employee ID not found. Please enter a valid Employee ID.");
-                }
-            } else {
+
+            if (!InputValidator.isValidString(projectManager)) {
                 System.out.println("Invalid Employee ID. Please try again.");
+                continue;
             }
+
+            Employee manager = employeeService.getEmployeeByID(projectManager);
+            if (manager == null) {
+                System.out.println("Employee ID not found. Please enter a valid Employee ID.");
+                continue;
+            }
+
+            User user = authService.getUserByEmail(manager.getEmail());
+            if (user == null || !"MANAGER".equalsIgnoreCase(user.getRole())) {
+                System.out.println("Selected employee is NOT a manager.");
+                System.out.println("Only users with MANAGER role can be assigned as Project Manager.");
+                continue;
+            }
+
+            System.out.println("Project Manager confirmed: " +
+                    manager.getFirstName() + " " + manager.getLastName());
+            break;
         }
-        
         // Validate Budget
         String budget = "";
         while (true) {
@@ -664,7 +673,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid budget. Please enter a positive number.");
         }
-        
+
         if (projectService.createProject(projectName, description, startDate, endDate, projectManager, budget)) {
             System.out.println("Project created successfully.");
         } else {
@@ -677,23 +686,23 @@ public class EmployeeResourceManagementSystem {
      */
     private void viewAllProjects() {
         List<Project> projects = projectService.getAllProjects();
-        
+
         if (projects == null || projects.isEmpty()) {
             System.out.println("No projects found.");
             return;
         }
-        
+
         System.out.println("\n--- All Projects ---");
         System.out.printf("%-10s | %-20s | %-15s | %-15s\n",
-                         "ID", "Name", "Status", "Budget");
+                "ID", "Name", "Status", "Budget");
         System.out.println("-".repeat(70));
-        
+
         for (Project proj : projects) {
             System.out.printf("%-10s | %-20s | %-15s | %-15s\n",
-                             proj.getProjectID(),
-                             proj.getProjectName(),
-                             proj.getStatus(),
-                             proj.getBudget());
+                    proj.getProjectID(),
+                    proj.getProjectName(),
+                    proj.getStatus(),
+                    proj.getBudget());
         }
     }
 
@@ -703,13 +712,13 @@ public class EmployeeResourceManagementSystem {
     private void updateProjectStatus() {
         System.out.print("Enter Project ID: ");
         String projectID = scanner.nextLine().trim();
-        
+
         Project project = projectService.getProjectByID(projectID);
         if (project == null) {
             System.out.println("Project not found.");
             return;
         }
-        
+
         System.out.println("\nProject: " + project.getProjectName());
         System.out.println("Current Status: " + project.getStatus());
         System.out.println("\nAvailable statuses:");
@@ -717,12 +726,12 @@ public class EmployeeResourceManagementSystem {
         System.out.println("2. ACTIVE");
         System.out.println("3. COMPLETED");
         System.out.println("4. ON-HOLD");
-        
+
         String status = "";
         while (true) {
             System.out.print("Enter new status (or choice 1-4): ");
             String input = scanner.nextLine().trim().toUpperCase();
-            
+
             if (input.equals("1") || input.equals("PLANNED")) {
                 status = "PLANNED";
                 break;
@@ -739,7 +748,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid status. Please select a valid option.");
             }
         }
-        
+
         if (projectService.updateProjectStatus(projectID, status)) {
             System.out.println("Project updated successfully to status: " + status);
         } else {
@@ -766,9 +775,9 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Project not found. Please enter a valid Project ID.");
             }
         }
-        
+
         System.out.println("Project: " + project.getProjectName());
-        
+
         // Validate Employee ID
         String employeeID = "";
         Employee employee = null;
@@ -784,9 +793,9 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Employee not found. Please enter a valid Employee ID.");
             }
         }
-        
+
         System.out.println("Employee: " + employee.getFirstName() + " " + employee.getLastName());
-        
+
         // Validate Role
         String role = "";
         while (true) {
@@ -797,7 +806,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid role. Please enter a non-empty role name.");
         }
-        
+
         // Validate Start Date
         String startDate = "";
         while (true) {
@@ -808,7 +817,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 01-01-2024).");
         }
-        
+
         // Validate End Date
         String endDate = "";
         while (true) {
@@ -831,7 +840,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 31-12-2024).");
             }
         }
-        
+
         // Validate Allocation Percentage
         String allocation = "";
         while (true) {
@@ -842,7 +851,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid allocation. Please enter a number between 0 and 100.");
         }
-        
+
         if (projectService.assignResourceToProject(projectID, employeeID, role, startDate, endDate, allocation)) {
             System.out.println("Resource assigned successfully to project.");
         } else {
@@ -860,9 +869,9 @@ public class EmployeeResourceManagementSystem {
             System.out.println("2. View Attendance Records");
             System.out.println("3. Back");
             System.out.print("Enter choice: ");
-            
+
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice) {
                 case "1":
                     markAttendance();
@@ -897,9 +906,9 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Employee not found. Please enter a valid Employee ID.");
             }
         }
-        
+
         System.out.println("Employee: " + employee.getFirstName() + " " + employee.getLastName());
-        
+
         // Validate Date
         String dateStr = "";
         while (true) {
@@ -914,7 +923,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 23-03-2026).");
         }
-        
+
         // Validate Status
         String status = "";
         while (true) {
@@ -924,7 +933,7 @@ public class EmployeeResourceManagementSystem {
             System.out.println("3. LEAVE");
             System.out.print("Enter choice or status: ");
             String input = scanner.nextLine().trim().toUpperCase();
-            
+
             if (input.equals("1") || input.equals("PRESENT")) {
                 status = "PRESENT";
                 break;
@@ -938,7 +947,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid status. Please select a valid option.");
             }
         }
-        
+
         if (attendanceService.markAttendance(employeeID, dateStr, status)) {
             System.out.println("Attendance marked successfully as " + status + " for " + dateStr);
         } else {
@@ -965,18 +974,20 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Employee not found. Please enter a valid Employee ID.");
             }
         }
-        
+
         List<Attendance> records = attendanceService.getEmployeeAttendance(employeeID);
-        
+
         if (records == null || records.isEmpty()) {
-            System.out.println("No attendance records found for " + employee.getFirstName() + " " + employee.getLastName());
+            System.out.println(
+                    "No attendance records found for " + employee.getFirstName() + " " + employee.getLastName());
             return;
         }
-        
-        System.out.println("\n--- Attendance Records for " + employee.getFirstName() + " " + employee.getLastName() + " ---");
+
+        System.out.println(
+                "\n--- Attendance Records for " + employee.getFirstName() + " " + employee.getLastName() + " ---");
         System.out.printf("%-12s | %-15s\n", "Date", "Status");
         System.out.println("-".repeat(30));
-        
+
         for (Attendance att : records) {
             System.out.printf("%-12s | %-15s\n", att.getDate(), att.getStatus());
         }
@@ -993,9 +1004,9 @@ public class EmployeeResourceManagementSystem {
             System.out.println("3. Reject Leave");
             System.out.println("4. Back");
             System.out.print("Enter choice: ");
-            
+
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice) {
                 case "1":
                     viewPendingLeaves();
@@ -1019,24 +1030,24 @@ public class EmployeeResourceManagementSystem {
      */
     private void viewPendingLeaves() {
         List<LeaveRequest> leaves = leaveService.getPendingLeaveRequests();
-        
+
         if (leaves == null || leaves.isEmpty()) {
             System.out.println("No pending leave requests.");
             return;
         }
-        
+
         System.out.println("\n--- Pending Leave Requests ---");
         System.out.printf("%-10s | %-12s | %-12s | %-12s | %-15s\n",
-                         "Leave ID", "Emp ID", "Start Date", "End Date", "Status");
+                "Leave ID", "Emp ID", "Start Date", "End Date", "Status");
         System.out.println("-".repeat(70));
-        
+
         for (LeaveRequest leave : leaves) {
             System.out.printf("%-10s | %-12s | %-12s | %-12s | %-15s\n",
-                             leave.getLeaveID(),
-                             leave.getEmployeeID(),
-                             leave.getStartDate(),
-                             leave.getEndDate(),
-                             leave.getStatus());
+                    leave.getLeaveID(),
+                    leave.getEmployeeID(),
+                    leave.getStartDate(),
+                    leave.getEndDate(),
+                    leave.getStatus());
         }
     }
 
@@ -1054,11 +1065,11 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid Leave ID. Please enter a non-empty value.");
         }
-        
+
         // Validate Comments (optional)
         System.out.print("Comments (optional): ");
         String comments = scanner.nextLine().trim();
-        
+
         if (leaveService.approveLeaveRequest(leaveID, comments)) {
             System.out.println("Leave approved successfully with comments.");
         } else {
@@ -1080,7 +1091,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid Leave ID. Please enter a non-empty value.");
         }
-        
+
         // Validate Reason
         String reason = "";
         while (true) {
@@ -1091,7 +1102,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Reason cannot be empty. Please provide a reason.");
         }
-        
+
         if (leaveService.rejectLeaveRequest(leaveID, reason)) {
             System.out.println("Leave rejected successfully with reason provided.");
         } else {
@@ -1111,9 +1122,9 @@ public class EmployeeResourceManagementSystem {
             System.out.println("4. Leave Report");
             System.out.println("5. Back");
             System.out.print("Enter choice: ");
-            
+
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice) {
                 case "1":
                     displayEmployeeReport();
@@ -1134,7 +1145,7 @@ public class EmployeeResourceManagementSystem {
             }
         }
     }
-    
+
     /**
      * Display employee report in descriptive format
      */
@@ -1144,7 +1155,7 @@ public class EmployeeResourceManagementSystem {
             System.out.println("Cannot access employee report.");
             return;
         }
-        
+
         System.out.println("\n" + "=".repeat(70));
         System.out.println("EMPLOYEE REPORT");
         System.out.println("=".repeat(70));
@@ -1154,7 +1165,7 @@ public class EmployeeResourceManagementSystem {
         System.out.println("Total Salary Expense: " + report.get("totalSalary"));
         System.out.println("Average Salary: " + report.get("averageSalary"));
         System.out.println("Total Departments: " + report.get("totalDepartments"));
-        
+
         if (report.containsKey("departmentBreakdown")) {
             System.out.println("\nEmployees by Department:");
             @SuppressWarnings("unchecked")
@@ -1163,7 +1174,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("  " + entry.getKey() + ": " + entry.getValue());
             }
         }
-        
+
         if (report.containsKey("designationBreakdown")) {
             System.out.println("\nEmployees by Designation:");
             @SuppressWarnings("unchecked")
@@ -1173,7 +1184,7 @@ public class EmployeeResourceManagementSystem {
             }
         }
     }
-    
+
     /**
      * Display project report in descriptive format
      */
@@ -1183,7 +1194,7 @@ public class EmployeeResourceManagementSystem {
             System.out.println("Cannot access project report.");
             return;
         }
-        
+
         System.out.println("\n" + "=".repeat(70));
         System.out.println("PROJECT REPORT");
         System.out.println("=".repeat(70));
@@ -1192,7 +1203,7 @@ public class EmployeeResourceManagementSystem {
         System.out.println("Completed Projects: " + report.get("completedProjects"));
         System.out.println("On-Hold Projects: " + report.get("onHoldProjects"));
         System.out.println("Total Budget: " + report.get("totalBudget"));
-        
+
         if (report.containsKey("statusBreakdown")) {
             System.out.println("\nProjects by Status:");
             @SuppressWarnings("unchecked")
@@ -1202,7 +1213,7 @@ public class EmployeeResourceManagementSystem {
             }
         }
     }
-    
+
     /**
      * Display attendance report in descriptive format
      */
@@ -1212,7 +1223,7 @@ public class EmployeeResourceManagementSystem {
             System.out.println("Cannot access attendance report.");
             return;
         }
-        
+
         System.out.println("\n" + "=".repeat(70));
         System.out.println("ATTENDANCE REPORT");
         System.out.println("=".repeat(70));
@@ -1221,7 +1232,7 @@ public class EmployeeResourceManagementSystem {
         System.out.println("Absent: " + report.get("absentCount") + " (" + report.get("absentPercentage") + ")");
         System.out.println("Leave: " + report.get("leaveCount"));
         System.out.println("Current Month Records: " + report.get("currentMonthRecords"));
-        
+
         if (report.containsKey("statusBreakdown")) {
             System.out.println("\nAttendance by Status:");
             @SuppressWarnings("unchecked")
@@ -1231,7 +1242,7 @@ public class EmployeeResourceManagementSystem {
             }
         }
     }
-    
+
     /**
      * Display leave report in descriptive format
      */
@@ -1241,7 +1252,7 @@ public class EmployeeResourceManagementSystem {
             System.out.println("Cannot access leave report.");
             return;
         }
-        
+
         System.out.println("\n" + "=".repeat(70));
         System.out.println("LEAVE REPORT");
         System.out.println("=".repeat(70));
@@ -1250,7 +1261,7 @@ public class EmployeeResourceManagementSystem {
         System.out.println("Pending: " + report.get("pendingLeaves"));
         System.out.println("Rejected: " + report.get("rejectedLeaves"));
         System.out.println("Total Leave Days Used: " + report.get("totalLeaveDays"));
-        
+
         if (report.containsKey("leaveTypeBreakdown")) {
             System.out.println("\nLeaves by Type:");
             @SuppressWarnings("unchecked")
@@ -1259,7 +1270,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("  " + entry.getKey() + ": " + entry.getValue());
             }
         }
-        
+
         if (report.containsKey("leaveStatusBreakdown")) {
             System.out.println("\nLeaves by Status:");
             @SuppressWarnings("unchecked")
@@ -1280,9 +1291,9 @@ public class EmployeeResourceManagementSystem {
             System.out.println("2. Change User Role");
             System.out.println("3. Back");
             System.out.print("Enter choice: ");
-            
+
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice) {
                 case "1":
                     viewAllUsers();
@@ -1303,36 +1314,36 @@ public class EmployeeResourceManagementSystem {
      */
     private void viewAllUsers() {
         List<String[]> users = authService.getAllUsers();
-        
+
         if (users == null || users.isEmpty()) {
             System.out.println("No users found.");
             return;
         }
-        
+
         System.out.println("\n--- All Users and Their Roles ---");
-        System.out.printf("%-10s | %-25s | %-10s | %-15s | %-15s | %-8s\n", 
-                         "User ID", "Email", "Role", "First Name", "Last Name", "Status");
+        System.out.printf("%-10s | %-25s | %-10s | %-15s | %-15s | %-8s\n",
+                "User ID", "Email", "Role", "First Name", "Last Name", "Status");
         System.out.println("-".repeat(100));
-        
+
         Map<String, Integer> roleCount = new HashMap<>();
-        
+
         for (String[] row : users) {
             String userID = row[0];
             String email = row[1];
             String role = row[3];
-            
+
             roleCount.put(role, roleCount.getOrDefault(role, 0) + 1);
-            
+
             // Get employee details if available
             Employee emp = employeeService.getEmployeeByEmail(email);
             String firstName = emp != null ? emp.getFirstName() : "N/A";
             String lastName = emp != null ? emp.getLastName() : "N/A";
             String status = emp != null ? emp.getStatus() : "N/A";
-            
-            System.out.printf("%-10s | %-25s | %-10s | %-15s | %-15s | %-8s\n", 
-                             userID, email, role, firstName, lastName, status);
+
+            System.out.printf("%-10s | %-25s | %-10s | %-15s | %-15s | %-8s\n",
+                    userID, email, role, firstName, lastName, status);
         }
-        
+
         System.out.println("\n--- Role Distribution ---");
         for (Map.Entry<String, Integer> entry : roleCount.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue() + " users");
@@ -1353,18 +1364,18 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid User ID. Please enter a non-empty value.");
         }
-        
+
         System.out.println("\nAvailable Roles:");
         System.out.println("1. ADMIN");
         System.out.println("2. MANAGER");
         System.out.println("3. EMPLOYEE");
-        
+
         // Validate Role Selection
         String newRole = "";
         while (true) {
             System.out.print("Enter choice (1-3) or role name: ");
             String input = scanner.nextLine().trim().toUpperCase();
-            
+
             if (input.equals("1") || input.equals("ADMIN")) {
                 newRole = "ADMIN";
                 break;
@@ -1378,7 +1389,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid role. Please select a valid option.");
             }
         }
-        
+
         if (authService.updateUserRole(userID, newRole)) {
             System.out.println("User role updated successfully to " + newRole);
         } else {
@@ -1402,9 +1413,9 @@ public class EmployeeResourceManagementSystem {
             System.out.println("6. Change Password");
             System.out.println("7. Logout");
             System.out.print("Enter choice: ");
-            
+
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice) {
                 case "1":
                     viewTeamMembers();
@@ -1439,23 +1450,23 @@ public class EmployeeResourceManagementSystem {
      */
     private void viewTeamMembers() {
         List<Employee> team = managerService.getTeamMembers();
-        
+
         if (team.isEmpty()) {
             System.out.println("No team members found.");
             return;
         }
-        
+
         System.out.println("\n--- Team Members ---");
         System.out.printf("%-10s | %-15s | %-15s | %-15s\n",
-                         "ID", "First Name", "Last Name", "Department");
+                "ID", "First Name", "Last Name", "Department");
         System.out.println("-".repeat(60));
-        
+
         for (Employee emp : team) {
             System.out.printf("%-10s | %-15s | %-15s | %-15s\n",
-                             emp.getEmployeeID(),
-                             emp.getFirstName(),
-                             emp.getLastName(),
-                             emp.getDepartment());
+                    emp.getEmployeeID(),
+                    emp.getFirstName(),
+                    emp.getLastName(),
+                    emp.getDepartment());
         }
     }
 
@@ -1477,18 +1488,18 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 23-03-2026).");
         }
-        
+
         List<Attendance> attendance = managerService.getTeamAttendance(dateStr);
-        
+
         if (attendance == null || attendance.isEmpty()) {
             System.out.println("No attendance records for this date: " + dateStr);
             return;
         }
-        
+
         System.out.println("\n--- Team Attendance for " + dateStr + " ---");
         System.out.printf("%-15s | %-20s\n", "Employee ID", "Status");
         System.out.println("-".repeat(40));
-        
+
         for (Attendance att : attendance) {
             System.out.printf("%-15s | %-20s\n", att.getEmployeeID(), att.getStatus());
         }
@@ -1499,25 +1510,25 @@ public class EmployeeResourceManagementSystem {
      */
     private void managerApproveLeave() {
         List<LeaveRequest> pending = managerService.getPendingLeaveRequests();
-        
+
         if (pending == null || pending.isEmpty()) {
             System.out.println("No pending leave requests to process.");
             return;
         }
-        
+
         System.out.println("\n--- Pending Leave Requests ---");
         System.out.printf("%-10s | %-12s | %-12s | %-12s\n",
-                         "Leave ID", "Emp ID", "Start Date", "End Date");
+                "Leave ID", "Emp ID", "Start Date", "End Date");
         System.out.println("-".repeat(50));
-        
+
         for (LeaveRequest leave : pending) {
             System.out.printf("%-10s | %-12s | %-12s | %-12s\n",
-                             leave.getLeaveID(),
-                             leave.getEmployeeID(),
-                             leave.getStartDate(),
-                             leave.getEndDate());
+                    leave.getLeaveID(),
+                    leave.getEmployeeID(),
+                    leave.getStartDate(),
+                    leave.getEndDate());
         }
-        
+
         // Validate Leave ID
         String leaveID = "";
         while (true) {
@@ -1528,13 +1539,13 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid Leave ID. Please enter a non-empty value.");
         }
-        
+
         // Validate Action
         String action = "";
         while (true) {
             System.out.print("Approve (A/YES) or Reject (R/NO)? ");
             String input = scanner.nextLine().trim().toUpperCase();
-            
+
             if (input.equals("A") || input.equals("YES")) {
                 action = "A";
                 break;
@@ -1545,7 +1556,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid action. Please enter A for Approve or R for Reject.");
             }
         }
-        
+
         if (action.equals("A")) {
             System.out.print("Comments (optional): ");
             String comments = scanner.nextLine().trim();
@@ -1565,7 +1576,7 @@ public class EmployeeResourceManagementSystem {
                 }
                 System.out.println("Reason cannot be empty. Please provide a reason.");
             }
-            
+
             if (managerService.rejectLeaveRequest(leaveID, reason)) {
                 System.out.println("Leave rejected successfully with reason provided.");
             } else {
@@ -1579,22 +1590,22 @@ public class EmployeeResourceManagementSystem {
      */
     private void viewTeamProjects() {
         List<Project> projects = managerService.getTeamProjects();
-        
+
         if (projects.isEmpty()) {
             System.out.println("No projects assigned to team.");
             return;
         }
-        
+
         System.out.println("\n--- Team Projects ---");
         System.out.printf("%-10s | %-20s | %-15s\n",
-                         "Project ID", "Name", "Status");
+                "Project ID", "Name", "Status");
         System.out.println("-".repeat(50));
-        
+
         for (Project proj : projects) {
             System.out.printf("%-10s | %-20s | %-15s\n",
-                             proj.getProjectID(),
-                             proj.getProjectName(),
-                             proj.getStatus());
+                    proj.getProjectID(),
+                    proj.getProjectName(),
+                    proj.getStatus());
         }
     }
 
@@ -1616,9 +1627,9 @@ public class EmployeeResourceManagementSystem {
             System.out.println("8. Change Password");
             System.out.println("9. Logout");
             System.out.print("Enter choice: ");
-            
+
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice) {
                 case "1":
                     viewProfile();
@@ -1660,12 +1671,12 @@ public class EmployeeResourceManagementSystem {
     private void viewProfile() {
         String email = authService.getCurrentUser().getEmail();
         Employee emp = employeeService.getEmployeeByEmail(email);
-        
+
         if (emp == null) {
             System.out.println("Employee profile not found.");
             return;
         }
-        
+
         System.out.println("\n--- Your Profile ---");
         System.out.println("Name: " + emp.getFirstName() + " " + emp.getLastName());
         System.out.println("Email: " + emp.getEmail());
@@ -1682,23 +1693,23 @@ public class EmployeeResourceManagementSystem {
     private void viewMyAttendance() {
         String email = authService.getCurrentUser().getEmail();
         Employee emp = employeeService.getEmployeeByEmail(email);
-        
+
         if (emp == null) {
             System.out.println("Employee not found.");
             return;
         }
-        
+
         List<Attendance> records = attendanceService.getEmployeeAttendance(emp.getEmployeeID());
-        
+
         if (records == null || records.isEmpty()) {
             System.out.println("No attendance records.");
             return;
         }
-        
+
         System.out.println("\n--- Your Attendance ---");
         System.out.printf("%-12s | %-15s\n", "Date", "Status");
         System.out.println("-".repeat(30));
-        
+
         for (Attendance att : records) {
             System.out.printf("%-12s | %-15s\n", att.getDate(), att.getStatus());
         }
@@ -1710,15 +1721,15 @@ public class EmployeeResourceManagementSystem {
     private void markMyAttendance() {
         String email = authService.getCurrentUser().getEmail();
         Employee emp = employeeService.getEmployeeByEmail(email);
-        
+
         if (emp == null) {
             System.out.println("Employee not found.");
             return;
         }
-        
+
         System.out.println("\n--- Mark Your Attendance ---");
         System.out.println("Employee: " + emp.getFirstName() + " " + emp.getLastName());
-        
+
         // Validate Date (default today)
         String dateStr = "";
         while (true) {
@@ -1745,7 +1756,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 23-03-2026).");
             }
         }
-        
+
         // Validate Status
         String status = "";
         while (true) {
@@ -1755,7 +1766,7 @@ public class EmployeeResourceManagementSystem {
             System.out.println("3. LEAVE");
             System.out.print("Enter choice (1-3): ");
             String input = scanner.nextLine().trim().toUpperCase();
-            
+
             if (input.equals("1") || input.equals("PRESENT")) {
                 status = "PRESENT";
                 break;
@@ -1769,7 +1780,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid choice. Please select 1, 2, or 3.");
             }
         }
-        
+
         // Mark attendance
         if (attendanceService.markOwnAttendance(emp.getEmployeeID(), dateStr, status)) {
             System.out.println("Attendance marked successfully as " + status + " for " + dateStr);
@@ -1784,14 +1795,14 @@ public class EmployeeResourceManagementSystem {
     private void requestLeave() {
         String email = authService.getCurrentUser().getEmail();
         Employee emp = employeeService.getEmployeeByEmail(email);
-        
+
         if (emp == null) {
             System.out.println("Employee not found.");
             return;
         }
-        
+
         System.out.println("\n--- Request Leave ---");
-        
+
         // Validate Leave Type
         String leaveType = "";
         while (true) {
@@ -1801,7 +1812,7 @@ public class EmployeeResourceManagementSystem {
             System.out.println("3. PERSONAL");
             System.out.print("Enter choice (1-3) or type: ");
             String input = scanner.nextLine().trim().toUpperCase();
-            
+
             if (input.equals("1") || input.equals("SICK")) {
                 leaveType = "SICK";
                 break;
@@ -1815,7 +1826,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid leave type. Please select a valid option.");
             }
         }
-        
+
         // Validate Start Date
         String startDate = "";
         while (true) {
@@ -1826,7 +1837,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 25-03-2026).");
         }
-        
+
         // Validate End Date
         String endDate = "";
         while (true) {
@@ -1849,7 +1860,7 @@ public class EmployeeResourceManagementSystem {
                 System.out.println("Invalid date format. Use dd-MM-yyyy (e.g., 28-03-2026).");
             }
         }
-        
+
         // Validate Reason
         String reason = "";
         while (true) {
@@ -1860,7 +1871,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Invalid reason. Please provide a reason (max 200 characters).");
         }
-        
+
         if (leaveService.requestLeave(emp.getEmployeeID(), leaveType, startDate, endDate, reason)) {
             System.out.println("Leave request submitted successfully. Awaiting manager approval.");
         } else {
@@ -1874,31 +1885,31 @@ public class EmployeeResourceManagementSystem {
     private void viewMyLeaves() {
         String email = authService.getCurrentUser().getEmail();
         Employee emp = employeeService.getEmployeeByEmail(email);
-        
+
         if (emp == null) {
             System.out.println("Employee not found.");
             return;
         }
-        
+
         List<LeaveRequest> leaves = leaveService.getEmployeeLeaves(emp.getEmployeeID());
-        
+
         if (leaves == null || leaves.isEmpty()) {
             System.out.println("No leave requests found.");
             return;
         }
-        
+
         System.out.println("\n--- Your Leave Requests ---");
         System.out.printf("%-10s | %-12s | %-12s | %-12s | %-10s\n",
-                         "Leave ID", "Type", "Start Date", "End Date", "Status");
+                "Leave ID", "Type", "Start Date", "End Date", "Status");
         System.out.println("-".repeat(70));
-        
+
         for (LeaveRequest leave : leaves) {
             System.out.printf("%-10s | %-12s | %-12s | %-12s | %-10s\n",
-                             leave.getLeaveID(),
-                             leave.getLeaveType(),
-                             leave.getStartDate(),
-                             leave.getEndDate(),
-                             leave.getStatus());
+                    leave.getLeaveID(),
+                    leave.getLeaveType(),
+                    leave.getStartDate(),
+                    leave.getEndDate(),
+                    leave.getStatus());
         }
     }
 
@@ -1908,29 +1919,29 @@ public class EmployeeResourceManagementSystem {
     private void viewMyAssignments() {
         String email = authService.getCurrentUser().getEmail();
         Employee emp = employeeService.getEmployeeByEmail(email);
-        
+
         if (emp == null) {
             System.out.println("Employee not found.");
             return;
         }
-        
+
         List<ResourceAssignment> assignments = projectService.getEmployeeAssignments(emp.getEmployeeID());
-        
+
         if (assignments == null || assignments.isEmpty()) {
             System.out.println("No project assignments.");
             return;
         }
-        
+
         System.out.println("\n--- Your Project Assignments ---");
         System.out.printf("%-10s | %-20s | %-12s\n",
-                         "Project ID", "Project Name", "Allocation %");
+                "Project ID", "Project Name", "Allocation %");
         System.out.println("-".repeat(50));
-        
+
         for (ResourceAssignment assign : assignments) {
             System.out.printf("%-10s | %-20s | %-12s\n",
-                             assign.getProjectID(),
-                             assign.getProjectID(),
-                             assign.getAllocationPercentage() + "%");
+                    assign.getProjectID(),
+                    assign.getProjectID(),
+                    assign.getAllocationPercentage() + "%");
         }
     }
 
@@ -1940,29 +1951,29 @@ public class EmployeeResourceManagementSystem {
     private void viewTeamHierarchy() {
         String email = authService.getCurrentUser().getEmail();
         Employee emp = employeeService.getEmployeeByEmail(email);
-        
+
         if (emp == null) {
             System.out.println("Employee not found.");
             return;
         }
-        
+
         List<Employee> allEmployees = employeeService.getAllEmployees();
         if (allEmployees == null || allEmployees.isEmpty()) {
             System.out.println("No employees found.");
             return;
         }
-        
+
         System.out.println("\n" + "=".repeat(80));
         System.out.println("COMPANY HIERARCHY AND TEAM STRUCTURE");
         System.out.println("=".repeat(80));
-        
+
         // Display current employee's manager
         System.out.println("\n--- Your Information ---");
         System.out.println("Name: " + emp.getFirstName() + " " + emp.getLastName());
         System.out.println("Employee ID: " + emp.getEmployeeID());
         System.out.println("Department: " + emp.getDepartment());
         System.out.println("Designation: " + emp.getDesignation());
-        
+
         if (emp.getReportingManager() != null && !emp.getReportingManager().isEmpty()) {
             Employee manager = employeeService.getEmployeeByID(emp.getReportingManager());
             if (manager != null) {
@@ -1974,56 +1985,56 @@ public class EmployeeResourceManagementSystem {
         } else {
             System.out.println("Reporting Manager: None (Top-level position)");
         }
-        
+
         // Display team members (people reporting to same manager)
         List<Employee> teamMembers = new ArrayList<>();
         for (Employee other : allEmployees) {
             if (!other.getEmployeeID().equals(emp.getEmployeeID()) &&
-                emp.getReportingManager() != null &&
-                emp.getReportingManager().equals(other.getReportingManager())) {
+                    emp.getReportingManager() != null &&
+                    emp.getReportingManager().equals(other.getReportingManager())) {
                 teamMembers.add(other);
             }
         }
-        
+
         if (!teamMembers.isEmpty()) {
             System.out.println("\n--- Team Members (Same Manager) ---");
-            System.out.printf("%-10s | %-20s | %-15s | %-15s\n", 
-                             "Emp ID", "Name", "Department", "Designation");
+            System.out.printf("%-10s | %-20s | %-15s | %-15s\n",
+                    "Emp ID", "Name", "Department", "Designation");
             System.out.println("-".repeat(65));
             for (Employee member : teamMembers) {
                 System.out.printf("%-10s | %-20s | %-15s | %-15s\n",
-                                 member.getEmployeeID(),
-                                 member.getFirstName() + " " + member.getLastName(),
-                                 member.getDepartment(),
-                                 member.getDesignation());
+                        member.getEmployeeID(),
+                        member.getFirstName() + " " + member.getLastName(),
+                        member.getDepartment(),
+                        member.getDesignation());
             }
         }
-        
+
         // Display company hierarchy by department
         System.out.println("\n--- Company Structure by Department ---");
         Map<String, List<Employee>> deptMap = new HashMap<>();
         for (Employee e : allEmployees) {
             deptMap.computeIfAbsent(e.getDepartment(), k -> new ArrayList<>()).add(e);
         }
-        
+
         for (String dept : deptMap.keySet()) {
             System.out.println("\n" + dept + " (" + deptMap.get(dept).size() + " employees):");
             System.out.printf("  %-10s | %-20s | %-15s\n", "Emp ID", "Name", "Designation");
             System.out.println("  " + "-".repeat(50));
             for (Employee e : deptMap.get(dept)) {
                 System.out.printf("  %-10s | %-20s | %-15s\n",
-                                 e.getEmployeeID(),
-                                 e.getFirstName() + " " + e.getLastName(),
-                                 e.getDesignation());
+                        e.getEmployeeID(),
+                        e.getFirstName() + " " + e.getLastName(),
+                        e.getDesignation());
             }
         }
-        
+
         // Display reporting chain
         System.out.println("\n--- Reporting Chain (Your Position in Hierarchy) ---");
         List<String> chain = new ArrayList<>();
         Employee current = emp;
         chain.add(current.getFirstName() + " " + current.getLastName() + " (" + current.getDesignation() + ")");
-        
+
         while (current.getReportingManager() != null && !current.getReportingManager().isEmpty()) {
             current = employeeService.getEmployeeByID(current.getReportingManager());
             if (current != null) {
@@ -2032,7 +2043,7 @@ public class EmployeeResourceManagementSystem {
                 break;
             }
         }
-        
+
         for (int i = 0; i < chain.size(); i++) {
             if (i > 0) {
                 System.out.print("    ↓ Reports to\n");
@@ -2046,7 +2057,7 @@ public class EmployeeResourceManagementSystem {
      */
     private void changePassword() {
         System.out.println("\n--- Change Password ---");
-        
+
         // Validate Current Password
         String currentPassword = "";
         while (true) {
@@ -2057,7 +2068,7 @@ public class EmployeeResourceManagementSystem {
             }
             System.out.println("Password cannot be empty.");
         }
-        
+
         // Validate New Password
         String newPassword = "";
         while (true) {
@@ -2065,29 +2076,29 @@ public class EmployeeResourceManagementSystem {
             System.out.println(InputValidator.getPasswordValidationMessage());
             System.out.print("Enter new password: ");
             newPassword = scanner.nextLine();
-            
+
             if (!InputValidator.isValidPassword(newPassword)) {
                 System.out.println("Password does not meet requirements. Please try again.");
                 continue;
             }
-            
+
             if (newPassword.equals(currentPassword)) {
                 System.out.println("New password must be different from current password.");
                 continue;
             }
-            
+
             break;
         }
-        
+
         // Confirm New Password
         System.out.print("Confirm new password: ");
         String confirmPassword = scanner.nextLine();
-        
+
         if (!newPassword.equals(confirmPassword)) {
             System.out.println("Passwords do not match. Please try again.");
             return;
         }
-        
+
         if (authService.changePassword(currentPassword, newPassword)) {
             System.out.println("Password changed successfully.");
         } else {

@@ -69,7 +69,7 @@ public class ManagerService {
 
         for (Employee emp : team) {
             for (String[] row : allLeaves) {
-                if (row.length > 1 && row[1].equals(emp.getEmployeeID()) && row[6].equals("PENDING")) {
+                if (row.length > 1 && row[1].equals(emp.getEmployeeID()) && row[7].equals("PENDING")) {
                     pendingRequests.add(new LeaveRequest(row));
                 }
             }

@@ -7,11 +7,11 @@ public class ResourceAssignment {
     private String assignmentID;
     private String projectID;
     private String employeeID;
-    private String role; // Developer, Designer, Tester, etc.
+    private String role;
     private String startDate;
     private String endDate;
     private String allocationPercentage;
-    private String status; // ASSIGNED, IN_PROGRESS, COMPLETED
+    private String status;
 
     /**
      * Constructor for creating a new assignment

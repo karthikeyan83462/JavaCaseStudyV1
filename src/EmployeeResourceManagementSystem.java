@@ -415,18 +415,19 @@ public class EmployeeResourceManagementSystem {
         }
 
         System.out.println("\n--- All Employees ---");
-        System.out.printf("%-10s | %-15s | %-15s | %-25s | %-15s | %-15s\n",
+        System.out.printf("%-10s | %-12s | %-11s | %-19s | %-12s | %-10s\n",
                 "ID", "First Name", "Last Name", "Email", "Department", "Status");
         System.out.println("-".repeat(120));
 
         for (Employee emp : employees) {
-            System.out.printf("%-10s | %-15s | %-15s | %-25s | %-15s | %-15s\n",
+            System.out.printf("%-10s | %-12s | %-11s | %-19s | %-11s | %-10s\n",
                     emp.getEmployeeID(),
                     emp.getFirstName(),
                     emp.getLastName(),
                     emp.getEmail(),
                     emp.getDepartment(),
-                    emp.getStatus());
+                    emp.getStatus()
+                );
         }
     }
 

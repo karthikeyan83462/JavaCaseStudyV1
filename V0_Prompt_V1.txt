@@ -1,0 +1,500 @@
+Using Angular version ( npx ng --version ) 19.2.23 and Spring boot version 4.0.5 with the below dependencies to create this project
+
+"""
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.0.5</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name/>
+	<description/>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-h2console</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>3.0.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+"""
+
+
+
+1. Executive Summary
+The PG Management System (PGMS) is a comprehensive, role-based full-stack web application designed to
+digitize and streamline the day-to-day operations of Paying Guest (PG) accommodations. The platform
+addresses the fragmented nature of current PG management practices by unifying owner oversight,
+manager operations, and tenant self-service into a single, cohesive digital ecosystem.
+The system targets three distinct user roles: PG Owners (administrators), PG Managers, and PG
+Tenants/Guests. Each role is provided a tailored interface and feature set aligned to their responsibilities
+and access level.
+Key value propositions of PGMS include:
+• Centralized management of multiple PG properties from a single dashboard
+• Automated rent tracking with fine enforcement for late payments
+• Transparent complaint escalation workflow from tenant to manager to owner
+• Self-service amenity booking (washing machine, games, room cleaning)
+• Temporary room subletting with credit-based reward system for tenants
+• Real-time vacancy tracking with room-level details (AC/non-AC, sharing type, pricing)
+This document outlines the complete solution architecture, module breakdown, feature list, technical stack,
+and implementation roadmap at the idea proposal stage.
+
+2. Problem Statement
+PG accommodations in India are predominantly managed through informal, manual processes. Owners and
+managers rely on paper registers, WhatsApp groups, and phone calls to coordinate rent collection,
+complaints, maintenance, and bookings. This leads to:
+• Delayed or disputed rent payments with no transparent audit trail
+• Poor complaint visibility and accountability gaps between tenants and managers
+• Inefficient scheduling of shared amenities such as washing machines
+• Lack of structured vacancy and room information for prospective tenants
+• Owner difficulty in monitoring multiple PGs simultaneously
+• Tenants vacating unused rooms with no mechanism to recover rent value
+• No digital record of notices, payments, or service requests
+
+PGMS addresses all of the above by providing a unified digital platform that brings transparency,
+automation, and accountability to PG operations.
+
+3. Solution Overview
+PGMS is designed as a three-tier, role-based application. The architecture separates concerns cleanly across
+the Owner, Manager, and Tenant layers while sharing a common data backbone. The solution is web-first
+(responsive) with a potential mobile app extension in future phases.
+
+3.1 High-Level Architecture
+• Frontend: React.js SPA with role-specific dashboards and protected routing
+• Backend: Node.js + Express REST API with JWT-based role authentication
+• Database: PostgreSQL for structured relational data; Redis for session caching and slot locking
+• File Storage: AWS S3 / local disk for receipts, profile photos, and notice attachments
+• Notification Engine: Firebase Cloud Messaging (FCM) for push notifications and email via
+NodeMailer
+• Payment Gateway: Razorpay (or equivalent) for rent and EB bill payments
+
+3.2 User Role Hierarchy
+Module / Feature Description
+PG Owner Top-level administrator. Has visibility and control across all owned
+
+PGs, managers, tenants, financials, and notices.
+
+PG Manager Operational role assigned to one or more PGs. Handles day-to-day
+operations including tenant onboarding, payments, complaints, and
+amenity management. Has a scoped view of assigned PGs only.
+PG Tenant / Guest End-user living in a PG. Self-service access for rent payment, receipt
+history, complaint raising, amenity bookings, and temporary sublet
+requests.
+
+4. Module Breakdown
+4.1 Authentication &amp; Authorization Module
+This foundational module governs access control for all three roles. It is the entry point to the entire system.
+
+• Secure login using email/phone + password with JWT token issuance
+• Role-based access control (RBAC): Owner, Manager, Tenant
+• Session management with token refresh and expiry handling
+• Password reset via OTP (email or SMS)
+• First-login forced password change for manager and tenant profiles created by admin
+• Two-factor authentication (2FA) option for owners for enhanced security
+• Audit log of all login/logout events per user
+
+4.2 PG &amp; Property Management Module
+This module handles the registration and configuration of PG properties. In the current phase, PG listings are
+created statically in code by the developer/owner since the scope is small. Future phases may include a self-
+onboarding UI.
+• Static configuration of PG properties per owner (name, address, total floors, total rooms)
+• Room-level data: room number, floor, AC/non-AC flag, sharing type
+(single/double/triple/dormitory), monthly rent amount, EB (electricity bill) inclusion flag, deposit
+amount, availability status
+• Vacancy dashboard showing all rooms across all owned PGs filtered by availability, floor, type, or
+rent range
+• Room edit capability for owner and manager to update rent, AC status, or sharing type
+• PG-level configuration: amenities available (washing machine, game room, etc.), working hours,
+rules
+
+4.3 Manager Management Module
+Owners maintain a roster of managers and assign them to PGs. One manager may oversee multiple PGs.
+• Owner can create manager profiles with name, contact details, and login credentials
+• Owner assigns one or more PGs to a manager
+• Manager profile view: assigned PGs, tenure, contact info
+• Owner can reassign or deactivate managers at any time
+• Manager receives a notification when assigned to a new PG
+• Manager dashboard aggregates data across all assigned PGs
+
+4.4 Tenant Onboarding &amp; Profile Module
+Tenant lifecycle management: from onboarding through room allocation to checkout.
+
+• Manager creates tenant profile with: full name, photo, government ID details, emergency contact,
+joining date, advance amount paid, allocated room number
+• Tenant receives login credentials via email/SMS after profile creation
+• Tenant profile page: personal info, room details, rent history, complaint history, credit balance
+• Owner and manager can view full tenant details including ID proof and emergency contacts
+• Checkout process: manager marks tenant as vacated, triggers deposit refund calculation (advance
+minus dues)
+• Tenant document upload (Aadhaar, PAN, etc.) for KYC compliance
+
+4.5 Rent &amp; Payment Management Module
+This is the core financial module, covering rent collection, EB billing, fine enforcement, and payment history.
+
+4.5.1 Rent Due &amp; Fine Engine
+• Monthly rent due is auto-generated on the 1st of every month based on room configuration
+• Deadline date is configurable per PG (e.g., 5th of every month)
+• If payment is not completed by the deadline, a fine of Rs. 100 is automatically added per day of
+delay
+• Fine accumulation is visible to the tenant in real time on their dashboard
+• Owner and manager can manually waive fines with a reason log
+
+4.5.2 Payment Processing
+• Tenant pays via integrated payment gateway (Razorpay) for rent + EB + accumulated fines
+• Supports partial payment with outstanding balance tracking
+• Credit balance (from sublet module) can be applied as a coupon/discount during checkout
+• Auto-generated receipt PDF with: payment date, amount, room number, PG name, receipt number
+• Receipts are downloadable and archived in tenant payment history
+
+4.5.3 Payment Dashboard (Owner &amp; Manager)
+• Overview of: total collected this month, total pending, total fine amounts outstanding
+• Room-wise and tenant-wise payment status: Paid / Pending / Overdue / Partial
+• Exportable payment reports in CSV/PDF for a given date range
+• Manager can mark offline cash payments as received with notes
+
+4.6 Notice &amp; Communication Module
+
+Centralized notice board for all roles with multi-directional communication.
+• Owner can send notices to: all tenants of all PGs, all tenants of a specific PG, a specific manager, or
+all managers
+• Manager can send notices to: all tenants of their assigned PG(s), or a specific tenant
+• Manager can also receive and view notices from the owner
+• Tenant can only view notices from owner and manager
+• Notices support: plain text, formatted text (rich text editor), and file attachments (PDF/image)
+• Push notification and in-app notification triggered on new notice publication
+• Notice read receipts: owner and manager can see who has read a notice
+• Notice archive: all historical notices retained and searchable
+
+4.7 Complaint &amp; Escalation Module
+A structured workflow ensuring tenant complaints are tracked, actioned, and escalated if ignored.
+
+4.7.1 Complaint Lifecycle
+• Tenant raises complaint with: category (maintenance/noise/hygiene/food/other), description,
+optional photo/video attachment
+• Complaint is logged with a unique ID and timestamp, and assigned to the respective PG manager
+• Status states: Open, In Progress, Resolved, Escalated, Closed
+
+4.7.2 Escalation Engine
+• If a complaint remains in Open or In Progress state beyond a configurable SLA period (default: 48
+hours), an escalation reminder is triggered to the manager
+• If unresolved beyond a second threshold (default: 72 hours from escalation), the complaint is
+automatically escalated to the PG owner with full context
+• Owner can take direct action, reassign, or close the complaint
+• Tenant is notified at every status change
+• Manager must provide resolution notes when marking a complaint as Resolved
+
+4.8 Menu Management Module
+Owners and managers can publish and manage weekly meal menus for tenants.
+• Owner creates and edits weekly menu (breakfast, lunch, dinner per day of week) per PG
+• Manager can update the menu for their assigned PG with owner visibility
+
+• Tenants can view the current week&#39;s menu and any published future week&#39;s menu
+• Menu change notifications can be pushed to tenants
+• Special menu or holiday menu can be published with a notice
+• Menu item tagging: veg/non-veg flag, allergen notes (optional)
+
+4.9 Washing Machine Slot Booking Module
+Shared washing machine resource scheduling with conflict prevention.
+• Manager configures: number of washing machines per PG, available slot timings (e.g., 7AM-9AM,
+9AM-11AM, etc.), max slots per day per tenant
+• Tenant books an available slot up to 3 days in advance
+• Slot confirmation sent via push notification
+• Tenant can cancel a slot up to 1 hour before the scheduled time
+• Manager dashboard shows slot utilization calendar for each machine
+• Slot locking via Redis to prevent double-booking under concurrent requests
+• No-show tracking: if a tenant repeatedly does not show up for booked slots, a soft warning is logged
+
+4.10 Games &amp; Recreation Booking Module
+Supports booking of game facilities available in the PG (TT, carrom, badminton court, etc.).
+• Manager configures available games/facilities and their time slots
+• Tenant books a game slot for solo or group play
+• Open Invitation feature: tenant can post an open slot request for others in the PG to join (e.g., need
+a partner for TT at 6 PM)
+• Other tenants can RSVP to join the open invitation up to the configured player limit
+• Booking cancellation with notification to all joined participants
+• Manager can block slots for maintenance or special events
+
+4.11 Temporary Room Sublet Module
+Allows tenants planning extended absences to temporarily sublet their room, earning credits applicable
+against future rent.
+
+4.11.1 Sublet Request Flow
+• Tenant submits a sublet request with: proposed dates of absence (start and end), optional reason
+
+• Manager reviews and approves or rejects the request
+• If approved, the room is listed as temporarily available on the PG vacancy board
+
+4.11.2 Credit Calculation
+• When the subletting is occupied by a temporary guest, the number of days occupied is tracked
+• Credit is calculated as: (occupied days / total days in month) x monthly rent amount
+• Credits are posted to the tenant&#39;s credit wallet upon checkout of the temporary guest
+• Tenant can redeem credits as a discount coupon during the next rent payment cycle
+
+4.11.3 Guardrails
+• Manager can set a maximum sublet duration per request
+• Sublet credits cannot exceed the monthly rent amount (no negative rent)
+• Sublet approval is at manager&#39;s discretion and can be revoked if room condition concerns arise
+
+4.12 Room Cleaning &amp; Service Booking Module
+Tenants can schedule housekeeping and other room services proactively.
+• Available services configured by manager: room cleaning, linen change, pest control, plumbing
+inspection, electrical check
+• Tenant selects service type, preferred date, preferred time window
+• Manager receives the booking and can confirm, reschedule, or reject
+• Service status tracked: Requested, Confirmed, Completed
+• Tenant rates the service on completion (1-5 stars with optional comment)
+• Manager can view service history and ratings per tenant
+
+4.13 Analytics &amp; Dashboard Module
+Each role has a summary dashboard providing at-a-glance operational metrics.
+
+4.13.1 Owner Dashboard
+• Total PGs owned, total rooms, total tenants, total vacancies
+• Revenue summary: collected this month, pending this month, fines outstanding
+• Complaint summary: open, in-progress, escalated to owner
+• Manager activity overview
+• Vacancy heat map by PG (room-level color coding)
+
+4.13.2 Manager Dashboard
+• Assigned PG(s) status: occupancy rate, pending payments, open complaints
+• Today&#39;s washing machine slot schedule and game bookings
+• Pending service requests
+• Recent notices from owner
+
+4.13.3 Tenant Dashboard
+• Current room info, rent due amount, fine (if any), payment deadline countdown
+• Upcoming slot bookings (washing machine, games, services)
+• Latest notices
+• Credit wallet balance
+• Open complaints and their current status
+
+=====================================================================================
+
+
+As a Manager, I want a daily overview of pending payments and open complaints.
+
+As a Manager, I want to register a new tenant and allocate a specific room.
+
+As a Manager, I want to record offline cash payments for rent or EB.
+
+As a Manager, I want to update the status of a tenant complaint from "Open" to "In Progress".
+
+As a Manager, I want to process a tenant checkout and calculate the deposit refund.
+
+As a Manager, I want to waive a tenant's fine if they provide a valid reason.
+
+As a Manager, I want to view the daily schedule for washing machine slots.
+
+As a Manager, I want to block game room slots for PG-wide events or maintenance.
+
+As a Manager, I want to review and approve/reject tenant sublet requests.
+
+As a Manager, I want to view and assign pending room cleaning service requests.
+
+As a Manager, I want to send a notice to only the tenants of my assigned PG.
+
+As a Manager, I want to verify tenant documents (Aadhaar/PAN) during onboarding.
+
+As a Manager, I want to update the daily menu if there is a change in the kitchen.
+
+As a Manager, I want to update the room configuration (e.g., AC to Non-AC) if equipment changes.
+
+As a Manager, I want to send a "Payment Reminder" notification to all overdue tenants.
+
+As a Manager, I want a dedicated complaint box for operational issues addressed to me.
+
+As a Manager, I want to track 1-month notice periods and waive them if a tenant-referred replacement is verified.
+
+As a Manager, I want to manage Deep Cleaning pre-bookings separately from regular cleaning.
+
+As a Tenant, I want to pay my monthly rent and EB bills online via Razorpay.
+
+As a Tenant, I want to download my past rent receipts for tax or record purposes.
+
+As a Tenant, I want to raise a complaint (e.g., plumbing) with a photo attachment.
+
+As a Tenant, I want to book a washing machine slot up to 3 days in advance.
+
+As a Tenant, I want to view the meal menu for the current and upcoming week.
+
+As a Tenant, I want to request a room sublet for my vacation period to earn credits.
+
+As a Tenant, I want to see my "Credit Balance" earned from subletting.
+
+================================================================================
+
+
+6. Database Entity Overview
+The following is a high-level description of the core database entities and their relationships. Detailed
+schema with column definitions will be produced during the design phase.
+
+Module / Feature Description
+users Stores all users (owners, managers, tenants) with role field, hashed
+
+password, contact info, and status flag.
+
+pgs PG property records: name, address, owner_id, floor count, amenities
+
+JSON, rules.
+
+rooms Room-level records: pg_id, room_number, floor, type (AC/non-AC),
+
+sharing_type, rent_amount, deposit, status
+(occupied/vacant/subletting).
+
+pg_managers Junction table linking a manager (user_id) to one or more PGs (pg_id)
+
+with assignment date.
+
+tenants Tenant-specific details: user_id, room_id, pg_id, joining_date,
+advance_paid, checkout_date, credit_balance, KYC status.
+rent_records Monthly rent entries: tenant_id, room_id, month, base_amount,
+eb_amount, fine_amount, paid_amount, payment_date,
+receipt_number, status.
+
+complaints Complaint records: tenant_id, pg_id, manager_id, category,
+description, media_urls, status, created_at, escalated_at, resolved_at,
+resolution_notes.
+
+notices Notice entries: author_id, author_role, pg_id (nullable for global),
+
+target_role, title, body, attachment_url, published_at.
+
+notice_reads Read receipts: notice_id, user_id, read_at.
+slot_bookings Washing machine / game slot bookings: user_id, pg_id, resource_type,
+
+resource_id, slot_date, slot_time, status.
+
+sublet_requests Sublet requests: tenant_id, room_id, start_date, end_date, status,
+
+approved_by, credit_earned.
+
+service_requests Room service bookings: tenant_id, service_type, preferred_date,
+
+time_window, status, rating, comment.
+
+menu Weekly menu entries: pg_id, week_start_date, day_of_week,
+meal_type (breakfast/lunch/dinner), items, veg_flag.
+
+audit_logs System-level log of important actions: user_id, action, entity_type,
+
+entity_id, timestamp, IP address.
+
+7. Feature Matrix by Role
+Feature Owner Manager Tenant
+Multi-PG Dashboard Yes Assigned PGs only No
+Manage Manager Profiles Yes No No
+Tenant Onboarding View only Yes No
+Room Configuration Yes Edit own PG No
+Vacancy View All PGs Assigned PGs No
+Send Notices All targets Tenants in PG No
+Receive Notices Yes Yes (from Owner) Yes
+Payment Overview All PGs Assigned PGs Own only
+Pay Rent No No Yes
+Download Receipts No No Yes
+Fine Management (Waive) Yes Yes No
+Raise Complaint No No Yes
+Resolve Complaint No Yes No
+Escalate Complaint Receive only No Trigger (auto)
+Menu Create/Edit Yes Yes (own PG) View only
+Washing Machine Config No Yes No
+Washing Machine Booking No No Yes
+Games Config No Yes No
+Games Booking No No Yes
+Open Game Invitation No No Yes
+Sublet Request No Approve/reject Raise request
+Sublet Credit Wallet No No Yes
+Service Request Config No Yes No
+Service Request Booking No No Yes
+
+Analytics Dashboard Full (all PGs) PG-level Personal
+Audit Logs Yes No No
+
+8. Non-Functional Requirements
+8.1 Security
+• All API endpoints protected with JWT middleware; role claims verified on every request
+• Passwords hashed using bcrypt with salt rounds &gt;= 12
+• HTTPS enforced in all environments; HTTP redirects to HTTPS
+• Rate limiting on login endpoint to prevent brute-force attacks
+• Input sanitization and parameterized queries to prevent SQL injection and XSS
+• PII data (Aadhaar, PAN) stored with field-level encryption
+
+8.2 Performance
+• API response time target: &lt; 300ms for 95th percentile under normal load
+• Database queries on payment, vacancy, and complaint tables optimized with appropriate indexes
+• Redis caching for frequently read data (menu, notices, room configurations)
+• Pagination enforced on all list endpoints (default 20 items per page)
+
+8.3 Scalability
+• Stateless backend enables horizontal scaling behind a load balancer
+• Database connection pooling via pg-pool
+• Asset delivery via CDN for uploaded files (receipts, photos)
+
+8.4 Usability
+• Mobile-first responsive design for all three portals
+• Intuitive onboarding flow for tenants with in-app tooltips
+• Accessible color contrast ratios (WCAG 2.1 AA minimum)
+• Support for Tamil and English UI (i18n-ready architecture)
